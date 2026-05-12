@@ -68,21 +68,19 @@ import { ShipmentModal } from './components/ShipmentModal';
 import { ShipmentDetailModal } from './components/ShipmentDetailModal';
 import { supabaseService } from './services/supabaseService';
 import { Login } from './components/Login';
-import { UserManager } from './components/UserManager';
-import ApprovalsPage from './components/ApprovalsPage';
-import QuickSearch from './components/QuickSearch';
 import { MovementModal } from './components/MovementModal';
-import { ImportPage } from './components/ImportPage';
-import { AnalysisPage } from './components/AnalysisPage';
-import { RotativeStockManager } from './components/RotativeStockManager';
-import { WaitingSlotsView } from './components/WaitingSlotsView';
 import HistoryItem from './components/HistoryItem';
 import StatsSection from './components/StatsSection';
 import WarehouseMap from './components/WarehouseMap';
 import RackDistributionChart from './components/RackDistributionChart';
 import ProductDistributionChart from './components/ProductDistributionChart';
-import InventoryCard from './components/InventoryCard';
 import { User as AppUser } from './types';
+
+// Modules
+import { OperationsModule } from './components/modules/OperationsModule';
+import { StockModule } from './components/modules/StockModule';
+import { ReturnsModule } from './components/modules/ReturnsModule';
+import { AdminModule } from './components/modules/AdminModule';
 
 const generateSlots = (): WarehouseSlot[] => {
   const slots: WarehouseSlot[] = [];
@@ -146,58 +144,40 @@ const NavItem = memo(({ tab, icon: Icon, label, badge, isActive, onNavigate, act
   </button>
 ));
 
-const SubTabs = ({ tabs, activeSubTab, onSubTabChange }: { tabs: { id: string, label: string }[], activeSubTab: string, onSubTabChange: (id: any) => void }) => (
-  <div className="flex gap-2 p-1 bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/50 mb-8 overflow-x-auto no-scrollbar flex-shrink-0">
-    {tabs.map(tab => (
-      <button
-        key={tab.id}
-        onClick={() => onSubTabChange(tab.id)}
-        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-          activeSubTab === tab.id 
-          ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
-          : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/50'
-        }`}
-      >
-        {tab.label}
-      </button>
-    ))}
-  </div>
-);
+const operationsTabs = [
+  { id: 'entry', label: 'Entrada' },
+  { id: 'exit', label: 'Saída' },
+  { id: 'transfer', label: 'Transferência' },
+  { id: 'waiting', label: 'Aguardando Vaga' },
+  { id: 'import', label: 'Importação' },
+  { id: 'analysis', label: 'Análise' }
+];
+
+const stockTabs = [
+  { id: 'general', label: 'Estoque Geral' },
+  { id: 'quicksearch', label: 'Consulta Rápida' },
+  { id: 'rotative', label: 'Estoque Rotativo' },
+  { id: 'containers', label: 'Containers' }
+];
+
+const administrationTabs = [
+  { id: 'users', label: 'Usuários' },
+  { id: 'approvals', label: 'Aprovações' },
+  { id: 'registrations', label: 'Cadastros' },
+  { id: 'settings', label: 'Configurações' }
+];
+
+const returnsTabs = [
+  { id: 'open', label: 'Retornos Abertos' },
+  { id: 'create', label: 'Criar Retorno' },
+  { id: 'boxes', label: 'Caixas' },
+  { id: 'items', label: 'Itens' },
+  { id: 'pending', label: 'Lotes Pendentes' },
+  { id: 'labels', label: 'Etiquetas' },
+  { id: 'finalize', label: 'Finalização' }
+];
 
 const App: React.FC = () => {
-  const operationsTabs = [
-    { id: 'entry', label: 'Entrada' },
-    { id: 'exit', label: 'Saída' },
-    { id: 'transfer', label: 'Transferência' },
-    { id: 'waiting', label: 'Aguardando Vaga' },
-    { id: 'import', label: 'Importação' },
-    { id: 'analysis', label: 'Análise' }
-  ];
-
-  const stockTabs = [
-    { id: 'general', label: 'Estoque Geral' },
-    { id: 'quicksearch', label: 'Consulta Rápida' },
-    { id: 'rotative', label: 'Estoque Rotativo' },
-    { id: 'containers', label: 'Containers' }
-  ];
-
-  const administrationTabs = [
-    { id: 'users', label: 'Usuários' },
-    { id: 'approvals', label: 'Aprovações' },
-    { id: 'registrations', label: 'Cadastros' },
-    { id: 'settings', label: 'Configurações' }
-  ];
-
-  const returnsTabs = [
-    { id: 'open', label: 'Retornos Abertos' },
-    { id: 'create', label: 'Criar Retorno' },
-    { id: 'boxes', label: 'Caixas' },
-    { id: 'items', label: 'Itens' },
-    { id: 'pending', label: 'Lotes Pendentes' },
-    { id: 'labels', label: 'Etiquetas' },
-    { id: 'finalize', label: 'Finalização' }
-  ];
-
   const [user, setUser] = useState<AppUser | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isPublicView, setIsPublicView] = useState(false);
@@ -2305,326 +2285,77 @@ const App: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 lg:p-14 scroll-smooth flex flex-col">
           {activeTab === 'operations' && (
-            <div className="max-w-7xl mx-auto w-full flex flex-col h-full animate-in fade-in duration-500">
-              <SubTabs 
-                tabs={operationsTabs} 
-                activeSubTab={activeSubTab} 
-                onSubTabChange={(id) => setActiveSubTab(id)} 
-              />
-              
-              <div className="flex-1">
-                {(activeSubTab === 'entry' || activeSubTab === 'exit' || activeSubTab === 'transfer') && (
-                  <div className="max-w-4xl mx-auto">
-                    <MovementModal 
-                      isOpen={true}
-                      isFlat={true}
-                      onClose={() => {}}
-                      onEntry={handleMovementEntry}
-                      onTransfer={handleMovementTransfer}
-                      onExit={handleMovementExit}
-                      availableSlots={slots.filter(s => s.status === SlotContent.EMPTY)}
-                      occupiedSlots={slots.filter(s => s.status !== SlotContent.EMPTY)}
-                      allSlots={slots}
-                      inventoryData={data}
-                      history={history}
-                      initialType={activeSubTab as any}
-                    />
-                  </div>
-                )}
-
-                {activeSubTab === 'import' && (
-                  <ImportPage 
-                    onProcess={handleImportProcess} 
-                    availableSlots={slots.filter(s => s.status === SlotContent.EMPTY)}
-                  />
-                )}
-
-                {activeSubTab === 'waiting' && (
-                  <WaitingSlotsView 
-                    items={waitingRows}
-                    onAssignSlot={(row, idx) => {
-                      setEditPalletMode('assign');
-                      setEditPalletContext({ row, inspection: row.inspections![idx], idx });
-                    }}
-                  />
-                )}
-
-                {activeSubTab === 'analysis' && (
-                  <AnalysisPage 
-                    pendingItems={pendingRows}
-                    availableSlots={slots.filter(s => s.status === SlotContent.EMPTY)}
-                    allSlots={slots}
-                    onConfirm={handleConfirmAnalysis}
-                    onReject={handleRejectAnalysis}
-                    onEdit={(item) => {
-                      setEditPalletMode('edit');
-                      setEditPalletContext({ row: item, inspection: item.inspections?.[0] || { contentType: SlotContent.SUPPLIES, bottles: 0, caps: 0, boxes: 0, cradles: 0 }, idx: 0 });
-                    }}
-                  />
-                )}
-              </div>
-            </div>
+            <OperationsModule 
+              activeSubTab={activeSubTab}
+              setActiveSubTab={setActiveSubTab}
+              slots={slots}
+              data={data}
+              history={history}
+              waitingRows={waitingRows}
+              pendingRows={pendingRows}
+              handleMovementEntry={handleMovementEntry}
+              handleMovementTransfer={handleMovementTransfer}
+              handleMovementExit={handleMovementExit}
+              handleImportProcess={handleImportProcess}
+              handleConfirmAnalysis={handleConfirmAnalysis}
+              handleRejectAnalysis={handleRejectAnalysis}
+              setEditPalletMode={setEditPalletMode}
+              setEditPalletContext={setEditPalletContext}
+            />
           )}
 
           {activeTab === 'stock' && (
-            <div className="max-w-7xl mx-auto w-full flex flex-col h-full animate-in fade-in duration-500">
-              <SubTabs 
-                tabs={stockTabs} 
-                activeSubTab={activeSubTab} 
-                onSubTabChange={(id) => setActiveSubTab(id)} 
-              />
-
-              <div className="flex-1">
-                {activeSubTab === 'general' && (
-                  <div className="space-y-6">
-                    {/* Search and Filter Area */}
-                    <div className="flex flex-col md:flex-row gap-3 items-center">
-                        <div className="relative flex-1 w-full">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-700 w-4 h-4" />
-                            <input 
-                                type="text" 
-                                value={inventorySearch}
-                                onChange={(e) => setInventorySearch(e.target.value)}
-                                placeholder="Digite a VAGA (Ex: E.1.3), OP, Produto ou Lote..." 
-                                className="w-full bg-slate-900 border border-slate-800 rounded-xl px-11 py-3 text-white font-semibold text-sm focus:border-blue-600 outline-none transition-all placeholder:text-slate-700"
-                            />
-                        </div>
-                        
-                        {/* Type Filter Dropdown */}
-                        <div className="relative w-full md:w-64">
-                          <button
-                            onClick={() => setIsInventoryFilterOpen(!isInventoryFilterOpen)}
-                            className={`w-full flex items-center justify-between px-5 py-3 bg-slate-900 border ${isInventoryFilterOpen ? 'border-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.2)]' : 'border-slate-800'} rounded-xl transition-all group`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <Filter className={`w-4 h-4 ${inventoryTypeFilter !== 'ALL' ? 'text-blue-500' : 'text-slate-500'}`} />
-                              <span className={`text-[10px] font-black uppercase tracking-widest ${inventoryTypeFilter !== 'ALL' ? 'text-white' : 'text-slate-500'}`}>
-                                {inventoryTypeFilter === 'ALL' ? 'Todos os Tipos' : 
-                                 inventoryTypeFilter === 'CONTAINER' ? 'Container (SJ/LP/CP)' : 
-                                 translateSlotContent(inventoryTypeFilter as SlotContent)}
-                              </span>
-                            </div>
-                            <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${isInventoryFilterOpen ? 'rotate-180' : ''}`} />
-                          </button>
-
-                          {isInventoryFilterOpen && (
-                            <>
-                              <div className="fixed inset-0 z-[60]" onClick={() => setIsInventoryFilterOpen(false)} />
-                              <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-[70] animate-in fade-in zoom-in-95 duration-200">
-                                <div className="grid grid-cols-1 gap-1 max-h-64 overflow-y-auto pr-1">
-                                  {[
-                                    { value: 'ALL', label: 'Todos os Tipos' },
-                                    { value: SlotContent.BOTTLES, label: 'Frasco' },
-                                    { value: SlotContent.SUPPLIES, label: 'Insumo' },
-                                    { value: SlotContent.FINISHED_PRODUCT, label: 'Produto Acabado' },
-                                    { value: 'CONTAINER', label: 'Todos os Containers' },
-                                    { value: SlotContent.CONTAINER_SJ, label: '• Container Sujo', isSub: true },
-                                    { value: SlotContent.CONTAINER_LP, label: '• Container Limpo', isSub: true },
-                                    { value: SlotContent.CONTAINER_CP, label: '• Container com Produto', isSub: true },
-                                    { value: SlotContent.REWORK, label: 'Retrabalho' },
-                                    { value: SlotContent.REPROCESS, label: 'Reprocesso' },
-                                    { value: SlotContent.USE_CONSUMPTION, label: 'Uso e Consumo' },
-                                    { value: SlotContent.RETURN, label: 'Retorno' },
-                                    { value: SlotContent.MISCELLANEOUS, label: 'Diversos' },
-                                    { value: SlotContent.DISCARD, label: 'Descarte' },
-                                    { value: SlotContent.OTHER, label: 'Outro' }
-                                  ].map((type) => (
-                                    <button
-                                      key={type.value}
-                                      onClick={() => {
-                                        setInventoryTypeFilter(type.value as any);
-                                        setIsInventoryFilterOpen(false);
-                                      }}
-                                      className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
-                                        (type as any).isSub ? 'ml-4 bg-slate-950/30' : ''
-                                      } ${
-                                        inventoryTypeFilter === type.value 
-                                          ? 'bg-blue-600 text-white' 
-                                          : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                                      }`}
-                                    >
-                                      {type.label}
-                                      {inventoryTypeFilter === type.value && <CheckCircle2 className="w-3 h-3" />}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            </>
-                          )}
-                        </div>
-
-                        {selectedPallets.length > 0 && (
-                            <div className="flex gap-3 w-full md:w-auto">
-                                <button 
-                                    onClick={() => setIsShipmentModalOpen(true)}
-                                    className="flex-1 md:flex-none px-5 py-3 bg-fuchsia-600 hover:bg-fuchsia-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-fuchsia-900/20 animate-in zoom-in duration-200"
-                                >
-                                    <Truck className="w-3.5 h-3.5" /> Carregamento ({selectedPallets.length})
-                                </button>
-                                <button 
-                                    onClick={() => setIsBulkConfirmOpen(true)}
-                                    className="flex-1 md:flex-none px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 animate-in zoom-in duration-200"
-                                >
-                                    <Send className="w-3.5 h-3.5" /> Enviar ({selectedPallets.length})
-                                </button>
-                            </div>
-                        )}
-                    </div>
-
-                    {filteredInventory.length === 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                            <div className="col-span-full py-20 text-center border-2 border-dashed border-slate-900 rounded-[32px]">
-                                <p className="text-slate-700 font-black uppercase text-[10px] tracking-[0.3em]">Nenhum item encontrado no estoque</p>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredInventory.map(({ row, inspection, idx }) => (
-                                <InventoryCard
-                                    key={`${row.id}::${idx}`}
-                                    item={row}
-                                    insp={inspection}
-                                    idx={idx}
-                                    isSelected={selectedPallets.includes(`${row.id}::${idx}`)}
-                                    onToggleSelection={togglePalletSelection}
-                                    onShowDetail={handleShowDetail}
-                                    onEdit={handleEditPallet}
-                                    onDelete={handleDeletePallet}
-                                    userRole={user?.role}
-                                />
-                            ))}
-                        </div>
-                    )}
-
-                    {hasMoreInventory && (
-                      <div className="flex justify-center pt-8 pb-12">
-                        <button
-                          onClick={loadMoreInventory}
-                          disabled={isLoadingMore}
-                          className="px-8 py-4 bg-slate-900 text-white rounded-[20px] font-black uppercase text-xs tracking-widest hover:bg-slate-800 transition-all disabled:opacity-50 flex items-center gap-3 border border-slate-800 shadow-xl"
-                        >
-                          {isLoadingMore ? (
-                            <>
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                              <span>Carregando...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Plus className="w-5 h-5" />
-                              <span>Carregar Mais Pallets</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {activeSubTab === 'quicksearch' && (
-                  <div className="max-w-3xl mx-auto">
-                    <QuickSearch 
-                      onShowDetail={(pallet) => handleShowDetail(pallet, pallet.inspections[0], 0)}
-                      onTransfer={(pallet) => {
-                        setMovementInitialContext({
-                          type: 'transfer',
-                          id: pallet.loadingId || pallet.id,
-                          pallet: pallet
-                        });
-                        setIsMovementModalOpen(true);
-                      }}
-                      onExit={(pallet) => {
-                        setMovementInitialContext({
-                          type: 'exit',
-                          id: pallet.loadingId || pallet.id,
-                          pallet: pallet
-                        });
-                        setIsMovementModalOpen(true);
-                      }}
-                      onAddToShipment={(pallet) => {
-                        setSelectedPallets([`${pallet.id}::0`]);
-                        setIsShipmentModalOpen(true);
-                      }}
-                    />
-                  </div>
-                )}
-
-                {activeSubTab === 'rotative' && (
-                  <RotativeStockManager 
-                    slots={slots}
-                    onUpdateSlot={async (slot) => {
-                      try {
-                        await supabaseService.updateSlot(slot);
-                        setSlots(prev => prev.map(s => s.id === slot.id ? slot : s));
-                      } catch (error) {
-                        showNotification('Erro ao atualizar vaga', 'error');
-                      }
-                    }}
-                    onShowNotification={showNotification}
-                    onAddHistory={addToHistory}
-                  />
-                )}
-
-                {activeSubTab === 'containers' && (
-                  <div className="py-20 text-center border-2 border-dashed border-slate-900 rounded-[2.5rem]">
-                    <Container className="w-12 h-12 text-slate-800 mx-auto mb-4" />
-                    <p className="text-slate-700 font-bold uppercase text-[10px] tracking-[0.3em]">
-                      Visualização de Containers em breve
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+            <StockModule 
+              activeSubTab={activeSubTab}
+              setActiveSubTab={setActiveSubTab}
+              inventorySearch={inventorySearch}
+              setInventorySearch={setInventorySearch}
+              inventoryTypeFilter={inventoryTypeFilter}
+              setInventoryTypeFilter={setInventoryTypeFilter}
+              isInventoryFilterOpen={isInventoryFilterOpen}
+              setIsInventoryFilterOpen={setIsInventoryFilterOpen}
+              selectedPallets={selectedPallets}
+              setSelectedPallets={setSelectedPallets}
+              setIsShipmentModalOpen={setIsShipmentModalOpen}
+              setIsBulkConfirmOpen={setIsBulkConfirmOpen}
+              filteredInventory={filteredInventory}
+              togglePalletSelection={togglePalletSelection}
+              handleShowDetail={handleShowDetail}
+              handleEditPallet={handleEditPallet}
+              handleDeletePallet={handleDeletePallet}
+              user={user}
+              hasMoreInventory={hasMoreInventory}
+              loadMoreInventory={loadMoreInventory}
+              isLoadingMore={isLoadingMore}
+              slots={slots}
+              onUpdateSlot={async (slot) => {
+                try {
+                  await supabaseService.updateSlot(slot);
+                  setSlots(prev => prev.map(s => s.id === slot.id ? slot : s));
+                } catch (error) {
+                  showNotification('Erro ao atualizar vaga', 'error');
+                }
+              }}
+              showNotification={showNotification}
+              onAddHistory={addToHistory}
+              setMovementInitialContext={setMovementInitialContext}
+              setIsMovementModalOpen={setIsMovementModalOpen}
+            />
           )}
 
           {activeTab === 'administration' && user?.role === 'admin' && (
-            <div className="max-w-7xl mx-auto w-full flex flex-col h-full animate-in fade-in duration-500">
-              <SubTabs 
-                tabs={administrationTabs} 
-                activeSubTab={activeSubTab} 
-                onSubTabChange={(id) => setActiveSubTab(id)} 
-              />
-              
-              <div className="flex-1">
-                {activeSubTab === 'users' && <UserManager />}
-                {activeSubTab === 'approvals' && <ApprovalsPage currentUser={user} />}
-                {activeSubTab === 'registrations' && (
-                  <div className="py-20 text-center border-2 border-dashed border-slate-900 rounded-[2.5rem]">
-                    <Plus className="w-12 h-12 text-slate-800 mx-auto mb-4" />
-                    <p className="text-slate-700 font-bold uppercase text-[10px] tracking-[0.3em]">
-                      Módulo de Cadastros em breve
-                    </p>
-                  </div>
-                )}
-                {activeSubTab === 'settings' && (
-                  <div className="py-20 text-center border-2 border-dashed border-slate-900 rounded-[2.5rem]">
-                    <Settings className="w-12 h-12 text-slate-800 mx-auto mb-4" />
-                    <p className="text-slate-700 font-bold uppercase text-[10px] tracking-[0.3em]">
-                      Configurações do Sistema em breve
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+            <AdminModule 
+              activeSubTab={activeSubTab}
+              setActiveSubTab={setActiveSubTab}
+              user={user}
+            />
           )}
 
           {activeTab === 'returns' && (
-            <div className="max-w-7xl mx-auto w-full flex flex-col h-full animate-in fade-in duration-500">
-              <SubTabs 
-                tabs={returnsTabs} 
-                activeSubTab={activeSubTab} 
-                onSubTabChange={(id) => setActiveSubTab(id)} 
-              />
-              
-              <div className="flex-1">
-                <div className="py-20 text-center border-2 border-dashed border-slate-900 rounded-[2.5rem]">
-                  <RefreshCw className="w-12 h-12 text-slate-800 mx-auto mb-4" />
-                  <h3 className="text-white font-black uppercase text-xl italic tracking-tight mb-2">Módulo de Retornos</h3>
-                  <p className="text-slate-700 font-bold uppercase text-[10px] tracking-[0.3em]">
-                    Em desenvolvimento para Stoque+
-                  </p>
-                </div>
-              </div>
-            </div>
+            <ReturnsModule 
+              activeSubTab={activeSubTab}
+              setActiveSubTab={setActiveSubTab}
+            />
           )}
 
           {(activeTab === 'dashboard' || isPublicView) && (
