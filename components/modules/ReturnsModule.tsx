@@ -11,11 +11,13 @@ import { ReturnDetailView } from '../returns/ReturnDetailView';
 interface ReturnsModuleProps {
   activeSubTab: string;
   setActiveSubTab: (tab: string) => void;
+  user?: import('../../types').User | null;
 }
 
 export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
   activeSubTab,
-  setActiveSubTab
+  setActiveSubTab,
+  user
 }) => {
   const [returns, setReturns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -141,7 +143,8 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
 
       {showCreateModal && (
         <CreateReturnModal 
-          onClose={() => setShowCreateModal(false)} 
+          onClose={() => setShowCreateModal(false)}
+          currentUser={user} 
           onCreated={(id) => {
             setShowCreateModal(false);
             setSelectedReturnId(id);
