@@ -6,7 +6,7 @@ import type { User as AppUser } from '../../types';
 
 interface CreateReturnModalProps {
   onClose: () => void;
-  onCreated: (returnId: string) => void;
+  onCreated: (newReturn: any) => void;
   currentUser?: AppUser | null;
 }
 
@@ -64,7 +64,7 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({ onClose, o
       
       // Mostrar feedback visual por um breve momento antes de fechar
       setTimeout(() => {
-        onCreated(newReturn.id);
+        onCreated(newReturn);
       }, 800);
       
     } catch (error: any) {

@@ -11,10 +11,14 @@ import { useReturnsStore } from '../../stores/returnsStore';
 
 interface ReturnsModuleProps {
   user?: import('../../types').User | null;
+  activeSubTab?: string;
+  setActiveSubTab?: (tab: string) => void;
 }
 
 export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
-  user
+  user,
+  activeSubTab = 'open',
+  setActiveSubTab
 }) => {
   const { 
     returns, setReturns, 
@@ -24,7 +28,10 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
     selectedReturn, setSelectedReturn
   } = useReturnsStore();
   
-  const [activeSubTab, setActiveSubTab] = useState('open');
+  const [localSubTab, setLocalSubTab] = useState('open');
+  const currentSubTab = setActiveSubTab ? activeSubTab : localSubTab;
+  const handleSubTabChange = setActiveSubTab || setLocalSubTab;
+  
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const fetchReturns = useCallback(async () => {
@@ -64,8 +71,8 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
     <div className="max-w-7xl mx-auto w-full flex flex-col h-full animate-in fade-in duration-500">
       <SubTabs 
         tabs={returnsTabs} 
-        activeSubTab={activeSubTab} 
-        onSubTabChange={(id) => setActiveSubTab(id)} 
+        activeSubTab={currentSubTab} 
+        onSubTabChange={(id) => handleSubTabChange(id)} 
       />
       
       <div className="flex-1 space-y-8">
@@ -140,9 +147,9 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
         <CreateReturnModal 
           onClose={() => setShowCreateModal(false)}
           currentUser={user} 
-          onCreated={(id) => {
+          onCreated={(newReturn) => {
             setShowCreateModal(false);
-            setSelectedReturn({ id } as any);
+            setSelectedReturn(newReturn);
           }}
         />
       )}

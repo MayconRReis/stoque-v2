@@ -168,13 +168,8 @@ const administrationTabs = [
 ];
 
 const returnsTabs = [
-  { id: 'open', label: 'Retornos Abertos' },
-  { id: 'create', label: 'Criar Retorno' },
-  { id: 'boxes', label: 'Caixas' },
-  { id: 'items', label: 'Itens' },
-  { id: 'pending', label: 'Lotes Pendentes' },
-  { id: 'labels', label: 'Etiquetas' },
-  { id: 'finalize', label: 'Finalização' }
+  { id: 'open', label: 'Monitor de Retornos' },
+  { id: 'requests', label: 'Solicitações de Items' },
 ];
 
 const App: React.FC = () => {
@@ -2354,6 +2349,8 @@ const App: React.FC = () => {
           {activeTab === 'returns' && (
             <ReturnsModule 
               user={user}
+              activeSubTab={activeSubTab}
+              setActiveSubTab={setActiveSubTab}
             />
           )}
 

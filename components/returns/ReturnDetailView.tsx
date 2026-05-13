@@ -93,8 +93,8 @@ export const ReturnDetailView: React.FC = () => {
                 <h1 className="text-white font-black italic tracking-tight text-4xl uppercase">{returnItem.return_code}</h1>
               </div>
               <div className="flex items-center gap-4 text-slate-500 font-bold uppercase text-[10px] tracking-widest">
-                <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {format(new Date(returnItem.created_at), 'dd MMM yyyy HH:mm', { locale: ptBR })}</span>
-                <span className={`flex items-center gap-1.5 ${getStatusColor(returnItem.status)}`}><CheckCircle2 className="w-3 h-3" /> {returnItem.status.replace('_', ' ')}</span>
+                <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {returnItem.created_at ? format(new Date(returnItem.created_at), 'dd MMM yyyy HH:mm', { locale: ptBR }) : 'Desconhecido'}</span>
+                <span className={`flex items-center gap-1.5 ${getStatusColor(returnItem.status)}`}><CheckCircle2 className="w-3 h-3" /> {returnItem.status ? returnItem.status.replace('_', ' ') : ''}</span>
               </div>
             </div>
           </div>
