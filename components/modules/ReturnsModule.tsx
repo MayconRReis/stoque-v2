@@ -3,26 +3,27 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { RefreshCw, Plus, Search, Filter, Loader2, Package, Inbox, ChevronRight } from 'lucide-react';
 import { SubTabs } from '../SubTabs';
 import { returnService } from '../../services/returnService';
-import { Return, ReturnStatus } from '../../types/returns';
+import { ReturnStatus } from '../../types/returns';
 import { ReturnCard } from '../returns/ReturnCard';
 import { CreateReturnModal } from '../returns/CreateReturnModal';
 import { ReturnDetailView } from '../returns/ReturnDetailView';
+import { useReturnsStore } from '../../stores/returnsStore';
 
 interface ReturnsModuleProps {
-  activeSubTab: string;
-  setActiveSubTab: (tab: string) => void;
   user?: import('../../types').User | null;
 }
 
 export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
-  activeSubTab,
-  setActiveSubTab,
   user
 }) => {
-  const [returns, setReturns] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const { 
+    returns, setReturns, 
+    loading, setLoading,
+    search, setSearch,
+    filters, setFilters
+  } = useReturnsStore();
+  
+  const [activeSubTab, setActiveSubTab] = useState('open');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedReturnId, setSelectedReturnId] = useState<string | null>(null);
 
@@ -31,7 +32,7 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
     try {
       const response = await returnService.listReturns({ 
         search: search || undefined, 
-        status: (statusFilter as any) || undefined 
+        status: (filters.status as any) || undefined 
       });
 
       setReturns(response.data);
@@ -40,7 +41,7 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter]);
+  }, [search, filters.status, setLoading, setReturns]);
 
   useEffect(() => {
     fetchReturns();
@@ -89,8 +90,8 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
             </div>
             <select
               className="bg-slate-900 border-2 border-slate-800 rounded-2xl px-6 py-4 text-white font-black uppercase focus:border-amber-400 focus:outline-none appearance-none cursor-pointer"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              value={filters.status as string || ''}
+              onChange={(e) => setFilters({ status: e.target.value as any })}
             >
               <option value="">TODOS STATUS</option>
               {Object.values(ReturnStatus).map(status => (
@@ -154,3 +155,4 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
     </div>
   );
 };
+

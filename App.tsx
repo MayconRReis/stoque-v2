@@ -2353,8 +2353,7 @@ const App: React.FC = () => {
 
           {activeTab === 'returns' && (
             <ReturnsModule 
-              activeSubTab={activeSubTab}
-              setActiveSubTab={setActiveSubTab}
+              user={user}
             />
           )}
 
