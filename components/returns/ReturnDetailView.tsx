@@ -11,17 +11,15 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export const ReturnDetailView: React.FC = () => {
-  const { selectedReturn, setSelectedReturn, boxes, setBoxes } = useReturnsStore();
+  const { selectedReturnId, setSelectedReturnId, selectedReturn, setSelectedReturn, boxes, setBoxes } = useReturnsStore();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'caixas' | 'pendencias' | 'logs'>('caixas');
 
-  const returnId = selectedReturn?.id;
-
   const fetchReturnData = useCallback(async () => {
-    if (!returnId) return;
+    if (!selectedReturnId) return;
     try {
       setLoading(true);
-      const data = await returnService.getReturnFull(returnId);
+      const data = await returnService.getReturnFull(selectedReturnId);
       setSelectedReturn(data);
       setBoxes(data?.return_boxes || []);
     } catch (error) {
@@ -29,20 +27,20 @@ export const ReturnDetailView: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [returnId, setSelectedReturn, setBoxes]);
+  }, [selectedReturnId, setSelectedReturn, setBoxes]);
 
   useEffect(() => {
-    // Only fetch if we just have the summary (e.g. no return_boxes embedded yet)
-    if (selectedReturn && !('return_boxes' in selectedReturn)) {
+    if (selectedReturnId && selectedReturn?.id !== selectedReturnId) {
       fetchReturnData();
     }
-  }, [fetchReturnData, selectedReturn]);
+  }, [fetchReturnData, selectedReturnId, selectedReturn]);
 
   const onBack = () => {
+    setSelectedReturnId(null);
     setSelectedReturn(null);
   };
 
-  if (loading || !selectedReturn || !('return_boxes' in selectedReturn)) {
+  if (loading || !selectedReturn || selectedReturn.id !== selectedReturnId) {
     return (
       <div className="flex flex-col items-center justify-center p-20 animate-pulse">
         <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mb-4" />
@@ -51,7 +49,7 @@ export const ReturnDetailView: React.FC = () => {
     );
   }
 
-  const returnItem = selectedReturn as ReturnFull;
+  const returnItem = selectedReturn;
 
   const boxCount = returnItem.return_boxes?.length || 0;
   const itemCount = returnItem.return_boxes?.reduce((acc: number, box: ReturnBoxWithItems) => acc + (box.return_box_items?.length || 0), 0) || 0;

@@ -25,9 +25,10 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
     loading, setLoading,
     search, setSearch,
     filters, setFilters,
-    selectedReturn, setSelectedReturn
+    selectedReturnId, setSelectedReturnId,
+    setSelectedReturn
   } = useReturnsStore();
-  
+
   const [localSubTab, setLocalSubTab] = useState('open');
   const currentSubTab = setActiveSubTab ? activeSubTab : localSubTab;
   const handleSubTabChange = setActiveSubTab || setLocalSubTab;
@@ -59,7 +60,7 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
     { id: 'requests', label: 'Solicitações de Items' },
   ];
 
-  if (selectedReturn) {
+  if (selectedReturnId) {
     return (
       <div className="max-w-7xl mx-auto w-full flex flex-col h-full animate-in fade-in duration-500">
         <ReturnDetailView />
@@ -136,7 +137,7 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
               <ReturnCard 
                 key={ret.id} 
                 returnItem={ret} 
-                onOpen={() => setSelectedReturn(ret as unknown as ReturnFull)} 
+                onOpen={() => setSelectedReturnId(ret.id)} 
               />
             ))}
           </div>
@@ -150,6 +151,7 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
           onCreated={(newReturn) => {
             setShowCreateModal(false);
             setSelectedReturn(newReturn);
+            setSelectedReturnId(newReturn.id);
           }}
         />
       )}

@@ -1,16 +1,12 @@
 
 import React from 'react';
 import { Package, User, MapPin, Calendar, Boxes, CheckCircle2, AlertCircle, Clock, XCircle, ArrowRight } from 'lucide-react';
-import { Return, ReturnStatus } from '../../types/returns';
+import { ReturnSummary, ReturnStatus } from '../../types/returns';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 interface ReturnCardProps {
-  returnItem: Return & { 
-    box_count?: number; 
-    item_count?: number; 
-    pending_lots?: number;
-  };
+  returnItem: ReturnSummary;
   onOpen: (id: string) => void;
 }
 
@@ -92,10 +88,10 @@ export const ReturnCard: React.FC<ReturnCardProps> = ({ returnItem, onOpen }) =>
             <span className="text-slate-500 font-bold uppercase text-[8px] tracking-widest">Itens</span>
             <span className="text-white font-black text-lg">{returnItem.item_count || 0}</span>
           </div>
-          {returnItem.pending_lots && returnItem.pending_lots > 0 ? (
+          {returnItem.pending_lots_count && returnItem.pending_lots_count > 0 ? (
             <div className="flex flex-col">
               <span className="text-amber-500 font-bold uppercase text-[8px] tracking-widest">Lotes Pend.</span>
-              <span className="text-amber-500 font-black text-lg">{returnItem.pending_lots}</span>
+              <span className="text-amber-500 font-black text-lg">{returnItem.pending_lots_count}</span>
             </div>
           ) : null}
         </div>

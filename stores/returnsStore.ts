@@ -12,6 +12,7 @@ import type {
 interface ReturnsState {
   // Dados principais
   returns: ReturnSummary[];
+  selectedReturnId: string | null;
   selectedReturn: ReturnFull | null;
   boxes: ReturnBoxWithItems[];
   selectedBox: ReturnBoxWithItems | null;
@@ -36,6 +37,7 @@ interface ReturnsState {
   
   // Actions
   setReturns: (returns: ReturnSummary[]) => void;
+  setSelectedReturnId: (id: string | null) => void;
   setSelectedReturn: (ret: ReturnFull | null) => void;
   setBoxes: (boxes: ReturnBoxWithItems[]) => void;
   setSelectedBox: (box: ReturnBoxWithItems | null) => void;
@@ -53,6 +55,7 @@ interface ReturnsState {
 
 const initialState = {
   returns: [],
+  selectedReturnId: null,
   selectedReturn: null,
   boxes: [],
   selectedBox: null,
@@ -77,6 +80,7 @@ export const useReturnsStore = create<ReturnsState>((set) => ({
   ...initialState,
   
   setReturns: (returns) => set({ returns }),
+  setSelectedReturnId: (selectedReturnId) => set({ selectedReturnId }),
   setSelectedReturn: (selectedReturn) => set({ selectedReturn }),
   setBoxes: (boxes) => set({ boxes }),
   setSelectedBox: (selectedBox) => set({ selectedBox }),
