@@ -2,11 +2,12 @@
 import React, { useState } from 'react';
 import { X, Plus, User, MapPin, FileText, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { returnService, returnBoxService, returnLogsService } from '../../services/returnService';
+import { ReturnFull } from '../../types/returns';
 import type { User as AppUser } from '../../types';
 
 interface CreateReturnModalProps {
   onClose: () => void;
-  onCreated: (newReturn: any) => void;
+  onCreated: (newReturn: ReturnFull) => void;
   currentUser?: AppUser | null;
 }
 
@@ -50,6 +51,13 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({ onClose, o
         created_by: currentUser?.id
       });
 
+      newReturn.return_boxes = [
+        {
+          ...firstBox,
+          return_box_items: []
+        }
+      ];
+
       // 3. Registrar Log de Auditoria
       await returnLogsService.addLog({
         return_id: newReturn.id,
@@ -64,12 +72,12 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({ onClose, o
       
       // Mostrar feedback visual por um breve momento antes de fechar
       setTimeout(() => {
-        onCreated(newReturn);
+        onCreated(newReturn as ReturnFull);
       }, 800);
       
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       console.error('Error creating return:', error);
-      setErrorMsg(error?.message || 'Ocorreu um erro ao tentar criar o retorno.');
+      setErrorMsg(error instanceof Error ? error.message : 'Ocorreu um erro ao tentar criar o retorno.');
     } finally {
       setLoading(false);
     }

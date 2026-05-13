@@ -178,7 +178,7 @@ export const returnService = {
   /**
    * Criar novo retorno (sem caixas)
    */
-  async createReturn(input: CreateReturnInput): Promise<Return> {
+  async createReturn(input: CreateReturnInput): Promise<ReturnFull> {
     const { data, error } = await supabase
       .from('returns')
       .insert([{
@@ -189,7 +189,10 @@ export const returnService = {
       .single();
 
     if (error) throw error;
-    return data as Return;
+    return {
+      ...(data as Return),
+      return_boxes: []
+    } as ReturnFull;
   },
 
   /**
@@ -994,7 +997,7 @@ export const returnsRealtimeService = {
   /**
    * Subscribe a mudanças em returns
    */
-  subscribeToReturns(callback: (payload: any) => void) {
+  subscribeToReturns(callback: (payload: unknown) => void) {
     return supabase
       .channel('returns-changes')
       .on(
@@ -1012,7 +1015,7 @@ export const returnsRealtimeService = {
   /**
    * Subscribe a mudanças em return_boxes
    */
-  subscribeToReturnBoxes(callback: (payload: any) => void) {
+  subscribeToReturnBoxes(callback: (payload: unknown) => void) {
     return supabase
       .channel('return_boxes-changes')
       .on(
@@ -1030,7 +1033,7 @@ export const returnsRealtimeService = {
   /**
    * Subscribe a mudanças em return_box_items
    */
-  subscribeToReturnBoxItems(callback: (payload: any) => void) {
+  subscribeToReturnBoxItems(callback: (payload: unknown) => void) {
     return supabase
       .channel('return_box_items-changes')
       .on(

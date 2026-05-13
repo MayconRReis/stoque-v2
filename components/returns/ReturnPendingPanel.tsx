@@ -2,19 +2,20 @@
 import React from 'react';
 import { AlertCircle, Package, ArrowRight, CornerDownRight, Boxes } from 'lucide-react';
 
+import { ReturnBoxItem, ReturnBoxWithItems } from '../../types/returns';
 import { useReturnsStore } from '../../stores/returnsStore';
 
 export const ReturnPendingPanel: React.FC = () => {
   const { boxes } = useReturnsStore();
-  const pendingItems: any[] = [];
-  const openBoxes: any[] = [];
+  const pendingItems: (ReturnBoxItem & { box_code: string })[] = [];
+  const openBoxes: ReturnBoxWithItems[] = [];
 
-  boxes.forEach(box => {
+  boxes.forEach((box: ReturnBoxWithItems) => {
     if (box.status === 'aberta') {
       openBoxes.push(box);
     }
     
-    (box.return_box_items || []).forEach((item: any) => {
+    (box.return_box_items || []).forEach((item: ReturnBoxItem) => {
       if (item.lot_pending) {
         pendingItems.push({
           ...item,

@@ -156,8 +156,8 @@ export interface ReturnLog {
   item_id?: string;
   action: string; // 'created', 'updated', 'deleted', 'status_changed', etc.
   description: string;
-  old_value?: Record<string, any>;
-  new_value?: Record<string, any>;
+  old_value?: Record<string, unknown>;
+  new_value?: Record<string, unknown>;
   created_by?: string;
   created_by_name?: string;
   created_at: string;

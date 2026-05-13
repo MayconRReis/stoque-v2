@@ -19,7 +19,7 @@ export const AddReturnItemForm: React.FC<AddReturnItemFormProps> = ({ returnId, 
   const [quantity, setQuantity] = useState<string>('');
   const [lot, setLot] = useState('');
   const [showRequestModal, setShowRequestModal] = useState(false);
-  const searchTimeout = useRef<any>(null);
+  const searchTimeout = useRef<number | NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (query.length < 2) {

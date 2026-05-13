@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Boxes, Plus, ArrowUp, AlertCircle, ArrowRight, Loader2, Package } from 'lucide-react';
-import { ReturnBox, ReturnBoxStatus } from '../../types/returns';
+import { ReturnBox, ReturnBoxStatus, ReturnBoxWithItems, ReturnBoxItem } from '../../types/returns';
 import { returnBoxService, returnService } from '../../services/returnService';
 import { ReturnBoxDetail } from './ReturnBoxDetail';
 
@@ -89,7 +89,7 @@ export const ReturnBoxesTab: React.FC = () => {
           {sortedBoxes.map((box) => {
             const statusStyle = getStatusDisplay(box.status);
             const itemsCount = box.return_box_items?.length || 0;
-            const pendingItems = box.return_box_items?.filter((i: any) => i.lot_pending)?.length || 0;
+            const pendingItems = box.return_box_items?.filter((i: ReturnBoxItem) => i.lot_pending)?.length || 0;
 
             return (
               <div 
@@ -126,7 +126,7 @@ export const ReturnBoxesTab: React.FC = () => {
                 </div>
 
                 <button 
-                  onClick={() => setSelectedBox(box as any)}
+                  onClick={() => setSelectedBox(box as ReturnBoxWithItems)}
                   className="w-full bg-slate-800 text-white p-4 rounded-xl font-black uppercase text-xs tracking-widest group-hover:bg-amber-400 group-hover:text-black transition-all flex items-center justify-center gap-2"
                 >
                   Abrir Caixa

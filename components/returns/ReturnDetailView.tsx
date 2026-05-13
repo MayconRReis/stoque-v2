@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Package, ArrowLeft, Boxes, AlertCircle, FileText, Plus, ChevronRight, CornerDownRight, User, MapPin, Clock, CheckCircle2 } from 'lucide-react';
 import { returnService } from '../../services/returnService';
-import { Return, ReturnBox, ReturnStatus, ReturnBoxStatus } from '../../types/returns';
+import { Return, ReturnBox, ReturnStatus, ReturnBoxStatus, ReturnFull, ReturnBoxItem, ReturnBoxWithItems } from '../../types/returns';
 import { ReturnBoxesTab } from './ReturnBoxesTab';
 import { ReturnPendingPanel } from './ReturnPendingPanel';
 import { ReturnLogsTab } from './ReturnLogsTab';
@@ -51,12 +51,12 @@ export const ReturnDetailView: React.FC = () => {
     );
   }
 
-  const returnItem = selectedReturn as any;
+  const returnItem = selectedReturn as ReturnFull;
 
   const boxCount = returnItem.return_boxes?.length || 0;
-  const itemCount = returnItem.return_boxes?.reduce((acc: number, box: any) => acc + (box.return_box_items?.length || 0), 0) || 0;
-  const pendingLots = returnItem.return_boxes?.reduce((acc: number, box: any) => {
-    return acc + (box.return_box_items?.filter((item: any) => item.lot_pending)?.length || 0);
+  const itemCount = returnItem.return_boxes?.reduce((acc: number, box: ReturnBoxWithItems) => acc + (box.return_box_items?.length || 0), 0) || 0;
+  const pendingLots = returnItem.return_boxes?.reduce((acc: number, box: ReturnBoxWithItems) => {
+    return acc + (box.return_box_items?.filter((item: ReturnBoxItem) => item.lot_pending)?.length || 0);
   }, 0) || 0;
 
   const getStatusColor = (status: ReturnStatus) => {
@@ -145,7 +145,7 @@ export const ReturnDetailView: React.FC = () => {
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as 'caixas' | 'pendencias' | 'logs')}
               className={`
                 flex-[1] flex items-center justify-center gap-3 py-5 rounded-[1.5rem] font-black uppercase text-xs tracking-widest transition-all
                 ${isActive 
