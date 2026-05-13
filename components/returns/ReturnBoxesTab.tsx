@@ -2,24 +2,34 @@
 import React, { useState } from 'react';
 import { Boxes, Plus, ArrowUp, AlertCircle, ArrowRight, Loader2, Package } from 'lucide-react';
 import { ReturnBox, ReturnBoxStatus } from '../../types/returns';
-import { returnBoxService } from '../../services/returnService';
+import { returnBoxService, returnService } from '../../services/returnService';
 import { ReturnBoxDetail } from './ReturnBoxDetail';
 
-interface ReturnBoxesTabProps {
-  returnId: string;
-  boxes: any[]; // Using any because it includes return_box_items count etc
-  onRefresh: () => void;
-}
+import { useReturnsStore } from '../../stores/returnsStore';
 
-export const ReturnBoxesTab: React.FC<ReturnBoxesTabProps> = ({ returnId, boxes, onRefresh }) => {
+export const ReturnBoxesTab: React.FC = () => {
+  const { selectedReturn, boxes, setSelectedBox, selectedBox, setSelectedReturn, setBoxes } = useReturnsStore();
   const [loading, setLoading] = useState(false);
-  const [selectedBoxId, setSelectedBoxId] = useState<string | null>(null);
+
+  const returnId = selectedReturn?.id;
+
+  const handleRefresh = async () => {
+    if (!returnId) return;
+    try {
+      const data = await returnService.getReturnFull(returnId);
+      setSelectedReturn(data);
+      setBoxes(data?.return_boxes || []);
+    } catch (error) {
+      console.error('Error refreshing return detail:', error);
+    }
+  };
 
   const handleAddBox = async () => {
+    if (!returnId) return;
     setLoading(true);
     try {
       await returnBoxService.createBox({ return_id: returnId });
-      onRefresh();
+      handleRefresh();
     } catch (error) {
       console.error('Error adding box:', error);
     } finally {
@@ -37,17 +47,8 @@ export const ReturnBoxesTab: React.FC<ReturnBoxesTabProps> = ({ returnId, boxes,
     }
   };
 
-  if (selectedBoxId) {
-    const selectedBox = boxes.find(b => b.id === selectedBoxId);
-    return (
-      <ReturnBoxDetail 
-        box={selectedBox} 
-        onBack={() => {
-          setSelectedBoxId(null);
-          onRefresh();
-        }} 
-      />
-    );
+  if (selectedBox) {
+    return <ReturnBoxDetail />;
   }
 
   // Sort boxes by pallet_order descending to show the top-most box first (operacional)
@@ -125,7 +126,7 @@ export const ReturnBoxesTab: React.FC<ReturnBoxesTabProps> = ({ returnId, boxes,
                 </div>
 
                 <button 
-                  onClick={() => setSelectedBoxId(box.id)}
+                  onClick={() => setSelectedBox(box as any)}
                   className="w-full bg-slate-800 text-white p-4 rounded-xl font-black uppercase text-xs tracking-widest group-hover:bg-amber-400 group-hover:text-black transition-all flex items-center justify-center gap-2"
                 >
                   Abrir Caixa

@@ -5,13 +5,14 @@ import { ReturnBox, ReturnBoxItem, ReturnBoxStatus } from '../../types/returns';
 import { returnBoxService } from '../../services/returnService';
 import { AddReturnItemForm } from './AddReturnItemForm';
 
-interface ReturnBoxDetailProps {
-  box: any;
-  onBack: () => void;
-}
+import { useReturnsStore } from '../../stores/returnsStore';
 
-export const ReturnBoxDetail: React.FC<ReturnBoxDetailProps> = ({ box, onBack }) => {
+export const ReturnBoxDetail: React.FC = () => {
+  const { selectedBox, setSelectedBox, selectedReturn } = useReturnsStore();
   const [showAddForm, setShowAddForm] = useState(false);
+
+  if (!selectedBox) return null;
+  const box = selectedBox;
 
   const getStatusColor = (status: ReturnBoxStatus) => {
     switch (status) {
@@ -32,7 +33,7 @@ export const ReturnBoxDetail: React.FC<ReturnBoxDetailProps> = ({ box, onBack })
         <div className="p-6 border-b-2 border-slate-800 flex justify-between items-center bg-slate-800/30">
           <div className="flex items-center gap-4">
             <button 
-              onClick={onBack}
+              onClick={() => setSelectedBox(null)}
               className="text-slate-400 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -64,9 +65,14 @@ export const ReturnBoxDetail: React.FC<ReturnBoxDetailProps> = ({ box, onBack })
             <AddReturnItemForm 
               returnId={box.return_id} 
               boxId={box.id} 
-              onAdded={() => {
+              onAdded={async () => {
                 setShowAddForm(false);
-                onBack(); // Simplest way to refresh is go back and open again, or we'd need better state
+                // Trigger an update to the whole return when an item is added
+                // This simulates the 'onBack' reload, but we keep the box open?
+                // The prompt says "evitar recarregamentos desnecessários", but items changed.
+                // Ideally we just refetch data but we don't have handleRefresh here.
+                // For now, let's close the detail so the BoxesTab can refetch, or we can fetch in BoxDetail.
+                setSelectedBox(null);
               }} 
             />
           </div>

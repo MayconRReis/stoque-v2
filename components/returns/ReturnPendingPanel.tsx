@@ -2,12 +2,10 @@
 import React from 'react';
 import { AlertCircle, Package, ArrowRight, CornerDownRight, Boxes } from 'lucide-react';
 
-interface ReturnPendingPanelProps {
-  returnId: string;
-  boxes: any[];
-}
+import { useReturnsStore } from '../../stores/returnsStore';
 
-export const ReturnPendingPanel: React.FC<ReturnPendingPanelProps> = ({ boxes }) => {
+export const ReturnPendingPanel: React.FC = () => {
+  const { boxes } = useReturnsStore();
   const pendingItems: any[] = [];
   const openBoxes: any[] = [];
 

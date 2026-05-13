@@ -20,12 +20,12 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
     returns, setReturns, 
     loading, setLoading,
     search, setSearch,
-    filters, setFilters
+    filters, setFilters,
+    selectedReturn, setSelectedReturn
   } = useReturnsStore();
   
   const [activeSubTab, setActiveSubTab] = useState('open');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedReturnId, setSelectedReturnId] = useState<string | null>(null);
 
   const fetchReturns = useCallback(async () => {
     setLoading(true);
@@ -52,16 +52,10 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
     { id: 'requests', label: 'Solicitações de Items' },
   ];
 
-  if (selectedReturnId) {
+  if (selectedReturn) {
     return (
       <div className="max-w-7xl mx-auto w-full flex flex-col h-full animate-in fade-in duration-500">
-        <ReturnDetailView 
-          returnId={selectedReturnId} 
-          onBack={() => {
-            setSelectedReturnId(null);
-            fetchReturns();
-          }} 
-        />
+        <ReturnDetailView />
       </div>
     );
   }
@@ -135,7 +129,7 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
               <ReturnCard 
                 key={ret.id} 
                 returnItem={ret} 
-                onOpen={(id) => setSelectedReturnId(id)} 
+                onOpen={() => setSelectedReturn(ret as any)} 
               />
             ))}
           </div>
@@ -148,7 +142,7 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
           currentUser={user} 
           onCreated={(id) => {
             setShowCreateModal(false);
-            setSelectedReturnId(id);
+            setSelectedReturn({ id } as any);
           }}
         />
       )}

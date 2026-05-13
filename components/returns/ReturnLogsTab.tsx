@@ -6,16 +6,20 @@ import { ReturnLog } from '../../types/returns';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-interface ReturnLogsTabProps {
-  returnId: string;
-}
+import { useReturnsStore } from '../../stores/returnsStore';
 
-export const ReturnLogsTab: React.FC<ReturnLogsTabProps> = ({ returnId }) => {
-  const [logs, setLogs] = useState<ReturnLog[]>([]);
-  const [loading, setLoading] = useState(true);
+export const ReturnLogsTab: React.FC = () => {
+  const { selectedReturn, logs, setLogs } = useReturnsStore();
+  const [loading, setLoading] = useState(false);
+
+  const returnId = selectedReturn?.id;
+  const hasLogsForThisReturn = logs.length > 0 && logs[0].return_id === returnId;
 
   useEffect(() => {
+    if (!returnId || hasLogsForThisReturn) return;
+
     const fetchLogs = async () => {
+      setLoading(true);
       try {
         const data = await returnLogsService.getLogsByReturn(returnId);
         setLogs(data);
@@ -26,7 +30,7 @@ export const ReturnLogsTab: React.FC<ReturnLogsTabProps> = ({ returnId }) => {
       }
     };
     fetchLogs();
-  }, [returnId]);
+  }, [returnId, hasLogsForThisReturn, setLogs]);
 
   if (loading) {
     return (

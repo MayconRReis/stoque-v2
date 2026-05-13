@@ -6,35 +6,43 @@ import { Return, ReturnBox, ReturnStatus, ReturnBoxStatus } from '../../types/re
 import { ReturnBoxesTab } from './ReturnBoxesTab';
 import { ReturnPendingPanel } from './ReturnPendingPanel';
 import { ReturnLogsTab } from './ReturnLogsTab';
+import { useReturnsStore } from '../../stores/returnsStore';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-interface ReturnDetailViewProps {
-  returnId: string;
-  onBack: () => void;
-}
-
-export const ReturnDetailView: React.FC<ReturnDetailViewProps> = ({ returnId, onBack }) => {
-  const [returnItem, setReturnItem] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+export const ReturnDetailView: React.FC = () => {
+  const { selectedReturn, setSelectedReturn, boxes, setBoxes } = useReturnsStore();
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'caixas' | 'pendencias' | 'logs'>('caixas');
 
+  const returnId = selectedReturn?.id;
+
   const fetchReturnData = useCallback(async () => {
+    if (!returnId) return;
     try {
+      setLoading(true);
       const data = await returnService.getReturnFull(returnId);
-      setReturnItem(data);
+      setSelectedReturn(data);
+      setBoxes(data?.return_boxes || []);
     } catch (error) {
       console.error('Error fetching return detail:', error);
     } finally {
       setLoading(false);
     }
-  }, [returnId]);
+  }, [returnId, setSelectedReturn, setBoxes]);
 
   useEffect(() => {
-    fetchReturnData();
-  }, [fetchReturnData]);
+    // Only fetch if we just have the summary (e.g. no return_boxes embedded yet)
+    if (selectedReturn && !('return_boxes' in selectedReturn)) {
+      fetchReturnData();
+    }
+  }, [fetchReturnData, selectedReturn]);
 
-  if (loading) {
+  const onBack = () => {
+    setSelectedReturn(null);
+  };
+
+  if (loading || !selectedReturn || !('return_boxes' in selectedReturn)) {
     return (
       <div className="flex flex-col items-center justify-center p-20 animate-pulse">
         <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mb-4" />
@@ -43,17 +51,7 @@ export const ReturnDetailView: React.FC<ReturnDetailViewProps> = ({ returnId, on
     );
   }
 
-  if (!returnItem) {
-    return (
-      <div className="p-12 text-center h-full flex flex-col items-center justify-center">
-        <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
-        <h3 className="text-white font-black italic tracking-tight text-xl uppercase mb-2">Retorno não encontrado</h3>
-        <button onClick={onBack} className="text-amber-400 font-bold uppercase text-xs tracking-widest flex items-center gap-2">
-          <ArrowLeft className="w-4 h-4" /> Voltar para lista
-        </button>
-      </div>
-    );
-  }
+  const returnItem = selectedReturn as any;
 
   const boxCount = returnItem.return_boxes?.length || 0;
   const itemCount = returnItem.return_boxes?.reduce((acc: number, box: any) => acc + (box.return_box_items?.length || 0), 0) || 0;
@@ -171,22 +169,13 @@ export const ReturnDetailView: React.FC<ReturnDetailViewProps> = ({ returnId, on
       {/* Content Area */}
       <div className="min-h-[400px]">
         {activeTab === 'caixas' && (
-          <ReturnBoxesTab 
-            returnId={returnId} 
-            boxes={returnItem.return_boxes || []} 
-            onRefresh={fetchReturnData} 
-          />
+          <ReturnBoxesTab />
         )}
         {activeTab === 'pendencias' && (
-          <ReturnPendingPanel 
-            returnId={returnId} 
-            boxes={returnItem.return_boxes || []} 
-          />
+          <ReturnPendingPanel />
         )}
         {activeTab === 'logs' && (
-          <ReturnLogsTab 
-            returnId={returnId} 
-          />
+          <ReturnLogsTab />
         )}
       </div>
     </div>
