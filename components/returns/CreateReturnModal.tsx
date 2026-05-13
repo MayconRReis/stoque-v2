@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { X, Plus, User, MapPin, FileText, Loader2 } from 'lucide-react';
-import { returnsService } from '../../services/returnsService';
+import { returnService } from '../../services/returnService';
 
 interface CreateReturnModalProps {
   onClose: () => void;
@@ -22,7 +22,7 @@ export const CreateReturnModal: React.FC<CreateReturnModalProps> = ({ onClose, o
 
     setLoading(true);
     try {
-      const newReturn = await returnsService.createReturn({
+      const newReturn = await returnService.createReturn({
         responsible_name: formData.responsible_name,
         origin_sector: formData.origin_sector,
         notes: formData.notes

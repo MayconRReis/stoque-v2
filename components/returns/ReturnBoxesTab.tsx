@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { Boxes, Plus, ArrowUp, AlertCircle, ArrowRight, Loader2, Package } from 'lucide-react';
-import { ReturnBox, BoxStatus } from '../../types/returns';
-import { returnsService } from '../../services/returnsService';
+import { ReturnBox, ReturnBoxStatus } from '../../types/returns';
+import { returnBoxService } from '../../services/returnService';
 import { ReturnBoxDetail } from './ReturnBoxDetail';
 
 interface ReturnBoxesTabProps {
@@ -18,7 +18,7 @@ export const ReturnBoxesTab: React.FC<ReturnBoxesTabProps> = ({ returnId, boxes,
   const handleAddBox = async () => {
     setLoading(true);
     try {
-      await returnsService.createReturnBox(returnId);
+      await returnBoxService.createBox({ return_id: returnId });
       onRefresh();
     } catch (error) {
       console.error('Error adding box:', error);
@@ -27,12 +27,12 @@ export const ReturnBoxesTab: React.FC<ReturnBoxesTabProps> = ({ returnId, boxes,
     }
   };
 
-  const getStatusDisplay = (status: BoxStatus) => {
+  const getStatusDisplay = (status: ReturnBoxStatus) => {
     switch (status) {
-      case BoxStatus.ABERTA: return { color: 'text-sky-400', bg: 'bg-sky-400/10', label: 'Aberta' };
-      case BoxStatus.ETIQUETADA: return { color: 'text-amber-400', bg: 'bg-amber-400/10', label: 'Etiquetada' };
-      case BoxStatus.CONFERIDA: return { color: 'text-emerald-400', bg: 'bg-emerald-400/10', label: 'Conferida' };
-      case BoxStatus.CANCELADA: return { color: 'text-rose-400', bg: 'bg-rose-400/10', label: 'Cancelada' };
+      case ReturnBoxStatus.ABERTA: return { color: 'text-sky-400', bg: 'bg-sky-400/10', label: 'Aberta' };
+      case ReturnBoxStatus.ETIQUETADA: return { color: 'text-amber-400', bg: 'bg-amber-400/10', label: 'Etiquetada' };
+      case ReturnBoxStatus.CONFERIDA: return { color: 'text-emerald-400', bg: 'bg-emerald-400/10', label: 'Conferida' };
+      case ReturnBoxStatus.CANCELADA: return { color: 'text-rose-400', bg: 'bg-rose-400/10', label: 'Cancelada' };
       default: return { color: 'text-slate-400', bg: 'bg-slate-400/10', label: status };
     }
   };

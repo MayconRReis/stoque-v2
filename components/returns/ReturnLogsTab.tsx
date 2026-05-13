@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FileText, Clock, User, Package, Boxes, Loader2, History } from 'lucide-react';
-import { returnsService } from '../../services/returnsService';
+import { returnLogsService } from '../../services/returnService';
 import { ReturnLog } from '../../types/returns';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -17,7 +17,7 @@ export const ReturnLogsTab: React.FC<ReturnLogsTabProps> = ({ returnId }) => {
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const data = await returnsService.getReturnLogs(returnId);
+        const data = await returnLogsService.getLogsByReturn(returnId);
         setLogs(data);
       } catch (error) {
         console.error('Error fetching logs:', error);

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { RefreshCw, Plus, Search, Filter, Loader2, Package, Inbox, ChevronRight } from 'lucide-react';
 import { SubTabs } from '../SubTabs';
-import { returnsService } from '../../services/returnsService';
+import { returnService } from '../../services/returnService';
 import { Return, ReturnStatus } from '../../types/returns';
 import { ReturnCard } from '../returns/ReturnCard';
 import { CreateReturnModal } from '../returns/CreateReturnModal';
@@ -27,31 +27,12 @@ export const ReturnsModule: React.FC<ReturnsModuleProps> = ({
   const fetchReturns = useCallback(async () => {
     setLoading(true);
     try {
-      // For this phase, we fetch the returns and augment them with counts
-      // In a real scenario, this counting should probably be handled by the database or a view
-      const { data } = await returnsService.getReturnsPaginated(1, 50, { 
-        search, 
-        status: statusFilter || undefined 
+      const response = await returnService.listReturns({ 
+        search: search || undefined, 
+        status: (statusFilter as any) || undefined 
       });
 
-      // Augmenting data with counts for the operational cards
-      const augmentedData = await Promise.all(data.map(async (ret: any) => {
-        const fullRet = await returnsService.getReturnById(ret.id);
-        const box_count = fullRet.return_boxes?.length || 0;
-        const item_count = fullRet.return_boxes?.reduce((acc: number, box: any) => acc + (box.return_box_items?.length || 0), 0) || 0;
-        const pending_lots = fullRet.return_boxes?.reduce((acc: number, box: any) => {
-          return acc + (box.return_box_items?.filter((item: any) => item.lot_pending)?.length || 0);
-        }, 0) || 0;
-
-        return {
-          ...ret,
-          box_count,
-          item_count,
-          pending_lots
-        };
-      }));
-
-      setReturns(augmentedData);
+      setReturns(response.data);
     } catch (error) {
       console.error('Error fetching returns:', error);
     } finally {

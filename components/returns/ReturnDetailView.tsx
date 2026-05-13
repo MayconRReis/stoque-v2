@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Package, ArrowLeft, Boxes, AlertCircle, FileText, Plus, ChevronRight, CornerDownRight, User, MapPin, Clock, CheckCircle2 } from 'lucide-react';
-import { returnsService } from '../../services/returnsService';
-import { Return, ReturnBox, ReturnStatus, BoxStatus } from '../../types/returns';
+import { returnService } from '../../services/returnService';
+import { Return, ReturnBox, ReturnStatus, ReturnBoxStatus } from '../../types/returns';
 import { ReturnBoxesTab } from './ReturnBoxesTab';
 import { ReturnPendingPanel } from './ReturnPendingPanel';
 import { ReturnLogsTab } from './ReturnLogsTab';
@@ -21,7 +21,7 @@ export const ReturnDetailView: React.FC<ReturnDetailViewProps> = ({ returnId, on
 
   const fetchReturnData = useCallback(async () => {
     try {
-      const data = await returnsService.getReturnById(returnId);
+      const data = await returnService.getReturnFull(returnId);
       setReturnItem(data);
     } catch (error) {
       console.error('Error fetching return detail:', error);

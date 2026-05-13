@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Loader2, Plus, AlertCircle, Trash2, Package, Tag, ArrowRight } from 'lucide-react';
-import { returnsService } from '../../services/returnsService';
+import { insumoService, returnBoxItemService } from '../../services/returnService';
 import { Insumo } from '../../types/returns';
 import { RequestInsumoModal } from './RequestInsumoModal';
 
@@ -32,8 +32,8 @@ export const AddReturnItemForm: React.FC<AddReturnItemFormProps> = ({ returnId, 
     searchTimeout.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const data = await returnsService.getInsumosSearch(query);
-        setResults(data);
+        const response = await insumoService.searchInsumos({ search: query });
+        setResults(response.data);
       } catch (error) {
         console.error('Search error:', error);
       } finally {
@@ -50,10 +50,12 @@ export const AddReturnItemForm: React.FC<AddReturnItemFormProps> = ({ returnId, 
 
     setLoading(true);
     try {
-      await returnsService.addItemToBox({
+      await returnBoxItemService.createItem({
         return_id: returnId,
         box_id: boxId,
         insumo_id: selectedInsumo.id,
+        codigo_senior: selectedInsumo.codigo_senior,
+        nome: selectedInsumo.descricao_insumo,
         quantity: Number(quantity),
         lot: lot.trim() || undefined
       });

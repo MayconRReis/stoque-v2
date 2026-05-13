@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { Package, ArrowLeft, Boxes, Plus, Search, Tag, AlertCircle, Trash2, CheckCircle2, MapPin, Layers } from 'lucide-react';
-import { ReturnBox, ReturnBoxItem, BoxStatus } from '../../types/returns';
-import { returnsService } from '../../services/returnsService';
+import { ReturnBox, ReturnBoxItem, ReturnBoxStatus } from '../../types/returns';
+import { returnBoxService } from '../../services/returnService';
 import { AddReturnItemForm } from './AddReturnItemForm';
 
 interface ReturnBoxDetailProps {
@@ -13,12 +13,12 @@ interface ReturnBoxDetailProps {
 export const ReturnBoxDetail: React.FC<ReturnBoxDetailProps> = ({ box, onBack }) => {
   const [showAddForm, setShowAddForm] = useState(false);
 
-  const getStatusColor = (status: BoxStatus) => {
+  const getStatusColor = (status: ReturnBoxStatus) => {
     switch (status) {
-      case BoxStatus.ABERTA: return 'text-sky-400';
-      case BoxStatus.CONFERIDA: return 'text-emerald-400';
-      case BoxStatus.ETIQUETADA: return 'text-amber-400';
-      case BoxStatus.CANCELADA: return 'text-rose-400';
+      case ReturnBoxStatus.ABERTA: return 'text-sky-400';
+      case ReturnBoxStatus.CONFERIDA: return 'text-emerald-400';
+      case ReturnBoxStatus.ETIQUETADA: return 'text-amber-400';
+      case ReturnBoxStatus.CANCELADA: return 'text-rose-400';
       default: return 'text-slate-400';
     }
   };

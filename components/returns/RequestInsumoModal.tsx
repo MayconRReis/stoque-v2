@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { X, Send, AlertCircle, FileText, Loader2, Info } from 'lucide-react';
-import { returnsService } from '../../services/returnsService';
+import { returnItemRequestService } from '../../services/returnService';
 
 interface RequestInsumoModalProps {
   initialName: string;
@@ -30,7 +30,7 @@ export const RequestInsumoModal: React.FC<RequestInsumoModalProps> = ({
 
     setLoading(true);
     try {
-      await returnsService.requestNewInsumo({
+      await returnItemRequestService.createRequest({
         requested_name: formData.requested_name,
         requested_description: formData.requested_description,
         return_id: returnId,
